@@ -38,16 +38,16 @@ class Database:
                     result = await connection.execute(command, *args)
             return result
 
-    # async def create_table_users(self):
-    #     sql = """
-    #     CREATE TABLE IF NOT EXISTS products_user(
-    #     id SERIAL PRIMARY KEY,
-    #     full_name VARCHAR(255) NOT NULL,
-    #     username varchar(255) NULL,
-    #     telegram_id BIGINT NOT NULL UNIQUE
-    #     );
-    #     """
-    #     await self.execute(sql, execute=True)
+    async def create_table_users(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS products_user(
+        id SERIAL PRIMARY KEY,
+        full_name VARCHAR(255) NOT NULL,
+        username varchar(255) NULL,
+        telegram_id BIGINT NOT NULL UNIQUE
+        );
+        """
+        await self.execute(sql, execute=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):
@@ -56,9 +56,9 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_user(self, full_name, username, telegram_id):
-        sql = "INSERT INTO products_user (full_name, username, telegram_id) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, full_name, username, telegram_id, fetchrow=True)
+    async def add_user(self, full_name, username, telegram_id, create_date):
+        sql = "INSERT INTO products_users (full_name, username, telegram_id, create_date) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, full_name, username, telegram_id, create_date, fetchrow=True)
 
     async def select_all_users(self):
         sql = "SELECT * FROM products_user"
@@ -112,19 +112,19 @@ class Database:
         category_name,
         subcategory_code,
         subcategory_name,
-        productname,
+        product_name,
         photo=None,
         price=None,
         description="",
     ):
-        sql = "INSERT INTO products_product (category_code, category_name, subcategory_code, subcategory_name, productname, photo, price, description) VALUES($1, $2, $3, $4, $5, $6, $7, $8) returning *"
+        sql = "INSERT INTO products_product (category_code, category_name, subcategory_code, subcategory_name, product_name, photo, price, description) VALUES($1, $2, $3, $4, $5, $6, $7, $8) returning *"
         return await self.execute(
             sql,
             category_code,
             category_name,
             subcategory_code,
             subcategory_name,
-            productname,
+            product_name,
             photo,
             price,
             description,
@@ -155,4 +155,4 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def drop_products(self):
-        await self.execute("DROP TABLE products_product", execute=True)
+        await self.execute("DROP TABLE products_products", execute=True)
